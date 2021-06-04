@@ -8,18 +8,22 @@ Unter Linux musst du folgendes tun:
 
 Für das Installieren des Frameworks gehst du folgendermaßen vor:
 
-**Linux:**  
-``~$ python3 -m pip install -U discord.py``  
-``~$ python3 -m pip install psutil``  
-``~$ python3 -m pip install asyncio``  
-``~$ python3 -m pip install datetime``
-
-
-**Windows:**  
-``~$ py -3 -m pip install -U discord.py``  
-``~$ py -3 -m pip install psutil``  
-``~$ py -3 -m pip install asyncio``  
-``~$ py -3 -m pip install datetime``   
+**Benötigte Py-Packages**
+datetime  
+discord  
+platform  
+time  
+discord.ext => commands  
+psutil  
+sys  
+os  
+messages  
+youtube_dl  
+discord => voice_client  
+googleapiclient.discovery  
+googleapiclient.discovery => build  
+discord.ext.commands => command  
+asyncio  
 
 **Info**  
 Wenn du ein PS Skript (Windows PowerShell) erstellen willst, dann musst du folgendes tun:  
@@ -30,16 +34,5 @@ Führe PowerShell als Administrator aus und gebe folgendes ein:
 ``Ausführungsrichtlinie ändern``  
 ``Die Ausführungsrichtlinie trägt zum Schutz vor nicht vertrauenswürdigen Skripts bei. Wenn Sie die Ausführungsrichtlinie                                                   ändern, sind Sie möglicherweise den im Hilfethema "about_Execution_Policies" unter                                                                                      "https:/go.microsoft.com/fwlink/?LinkID=135170" beschriebenen Sicherheitsrisiken ausgesetzt. Möchten Sie die                                                             Ausführungsrichtlinie ändern?                                                                                                                                            [J] Ja  [A] Ja, alle  [N] Nein  [K] Nein, keine  [H] Anhalten  [?] Hilfe (Standard ist "N"): A
 ``  
-``PS C:\WINDOWS\system32>  ``
-
-Nun kannst du PowerShell Skripte erstellen!
-Ein PS-Skript könnte bspw so aussehen:
-
-``cd <Pfad-zum-Projekt>``  
-``<Installationsort-von-python.exe> main.py``
-
-Bei mir sieht der PS-Skript so aus:  
-``cd D:\Projekte\dfbPy\``  
-``py main.py``
 
 discord.py - HowTo Run - made by Julian (DC: Julius#1755)
