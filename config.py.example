@@ -1,0 +1,4 @@
+class Config:
+    Token = "<Your Token>"
+    Prefix = "<Your Prefix>"
+    Owner = "<Bot Owner ID>"
