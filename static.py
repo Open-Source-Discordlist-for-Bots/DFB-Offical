@@ -21,11 +21,12 @@ class Emote:
     pyCompiler = "<:pyCompiler:853294245455593502>"
     info = "<:dj_info:853295815338754119>"
     github = "<:Github:850774618934738974>"
+    server = "<:server:862018984382693386>"
 
 
 class Bot:
     Id = "847100391387824158"
-    Version = "1.29"
+    Version = "1.56-pre-1a"
     Repo = "https://github.com/Discordlist-for-Bots/dfbOfficalRewrite"
     Owner = "703944517048598568"
     OwnerMention = "<@703944517048598568>"

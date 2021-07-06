@@ -5,9 +5,13 @@ import time
 from datetime import timedelta
 import contextlib
 import io
+import asyncio
 
 from static import *
 from config import *
+from database.database import *
+from friendlier_json import Reader, Object
+
 
 # Main Bot begins here
 
@@ -36,6 +40,7 @@ async def on_ready():
     print('-- Bot Log --')
     print('')
     print(Messages.OnStarted)
+    print(Database.OnReady)
 
 
 @bot.event
@@ -90,6 +95,8 @@ async def help(ctx):
                         "Shows you the bot ping\n\n"
                         "- `dfb?info`\n"
                         "Lets look info about the concept of DFB\n\n"
+                        "- `dfb?giveaway`\n"
+                        "Starting a giveaway\n\n"
                         "**💻 For Developer**\n"
                         "- `dfb?approve <bot> <owner>`\n"
                         "Approves the mentioned bot\n\n"
@@ -109,6 +116,12 @@ async def help(ctx):
                         "Eval Command for DFB\n\n"
                         "- `dfb?shutdown`\n"
                         "Shutdowns the Bot\n\n"
+                        "- `dfb?read <file>`\n"
+                        "Reading a file\n\n"
+                        "- `dfb?db-read`\n"
+                        "Reading the edb\n\n"
+                        "- `dfb?set-giveaway-prize <prize>`\n"
+                        "Setts the Giveaway Prize\n\n"
                         f"**Offical DFB Server » [Invite](https://discord.gg/9Hq7wqsmJy)**",
         )
         em.set_footer(text=f"Requested by {ctx.author.name}#{ctx.author.discriminator}")
@@ -120,13 +133,15 @@ async def help(ctx):
             description="**:gear: Moderation**\n"
                         "- `dfb?<emptyCommand>`\n"
                         "`<emptyDescription>`\n\n"
-                        "**:hammer_pick: Utilities**\n"
+                         "**:hammer_pick: Utilities**\n"
                         "- `dfb?about`\n"
                         "Lets look some useful information about the bot\n\n"
                         "- `dfb?ping`\n"
                         "Shows you the bot ping\n\n"
                         "- `dfb?info`\n"
                         "Lets look info about the concept of DFB\n\n"
+                        "- `dfb?giveaway`\n"
+                        "Starting a giveaway\n\n"
                         f"**Offical DFB Server » [Invite](https://discord.gg/9Hq7wqsmJy)**",
         )
         em.set_footer(text=f"Requested by {ctx.author.name}#{ctx.author.discriminator}")
@@ -138,7 +153,7 @@ async def help(ctx):
 # -- Approve and other Botlist Commands --
 
 @bot.command()
-@commands.has_permissions(administrator = True)
+@commands.has_permissions(administrator=True)
 async def approve(ctx, bot, owner):
     em = discord.Embed(title='Bot approved', description=f'The Bot {bot} by {owner} was approved by <@{ctx.author.id}>! \n Your Bot is now available on the DFB website!', color=Colors.approveColor)
     await ctx.send(embed=em)
@@ -202,13 +217,13 @@ async def shutdown(ctx):
         await ctx.send('Shutting down the bot!')
         await ctx.bot.logout()
     else:
-        await ctx.send("You dont have sufficient permmisions to perform this action!")
+        await ctx.send("You dont have sufficient permissions to perform this action!")
 
 
 @bot.command()
 @commands.has_role(768938229259960370)
 async def eval(ctx, *, code):
-    str_obj = io.StringIO() #Retrieves a stream of data
+    str_obj = io.StringIO()
     try:
         with contextlib.redirect_stdout(str_obj):
             exec(code)
@@ -239,7 +254,7 @@ async def eval(ctx, *, code):
 
 @bot.command()
 @commands.has_role(768938229259960370)
-async def say(ctx, * , args):
+async def say(ctx, *, args):
     await ctx.send(args)
     await ctx.message.delete()
 
@@ -250,6 +265,83 @@ async def embedsay(ctx, * , args):
     em = discord.Embed(description=args)
     await ctx.send(embed=em)
     await ctx.message.delete()
+
+
+
+@bot.command()
+@commands.has_role(768938229259960370)
+async def read(ctx, file):
+
+    f = open(file, "r")
+
+    fileembed = discord.Embed(
+        title="Wait, what? :thinking:",
+        description="You are trying to get the bot token from me...? Not a good idea!",
+        color=discord.Color.red()
+    )
+
+    if file == "config.py":
+        await ctx.send(embed=fileembed)
+        print(Messages.OnToken)
+        return
+
+    em = discord.Embed(
+        title="Reading File",
+        description=f"```{f.read()}```",
+        color=discord.Color.blue()
+    )
+    await ctx.send(embed=em)
+
+
+@bot.command(name='edb-read')
+@commands.has_role(768938229259960370)
+async def edbread(ctx):
+
+
+    f = open('./database/files/database.edb', "r")
+
+    em = discord.Embed(
+        title="DFB's EDatabase Configuration",
+        description=f"```coffee\n{f.read()}```",
+        color=discord.Color.blue()
+    )
+    await ctx.send(embed=em)
+
+
+@bot.command()
+async def add_team_test(ctx, member:discord.Member):
+    reader = Reader()
+    reader.file = './database/data.json'
+    person1 = Object(name=member.display_name, id=member.id)
+    reader.insert(person1)
+    await ctx.send("Done")
+
+
+
+@bot.command()
+async def get_team_test(ctx):
+    reader = Reader()
+    reader.file = './database/data.json'
+    result = reader.select()
+    await ctx.send(f"```json\n{result}```")
+
+
+@bot.command()
+@commands.has_role(768938229259960370)
+async def add_team(ctx, *, member):
+
+    with open('./database/files/team.cfg', 'a') as f:
+        f.write(f"\n- {member}")
+
+    await ctx.send(f"Member {member} was added to the Team")
+
+
+@bot.command()
+@commands.has_role(768938229259960370)
+async def get_team(ctx):
+    members = open("./database/files/team.cfg", "r")
+    await ctx.send(f"Team Members: {members.read()}")
+
 # -- Only Devs --
 
 
@@ -265,11 +357,94 @@ async def about(ctx):
         em.add_field(name=f"Python Compiler {Emote.pyCompiler}", value=f"{platform.python_compiler()}", inline=False)
         em.add_field(name="Bot Version :tools: ", value=f"{Bot.Version}")
         em.add_field(name=f"Uptime :robot:", value=f'{str(timedelta(seconds=int(round(time.time()-startTime))))}', inline=True)
+        em.add_field(name=f"Server OS {Emote.server}", value="Debian GNU/Linux 11.0 Bullseye")
         em.add_field(name=f"Other Informations {Emote.info}", value=f'OS: {platform.system()} ' f' {platform.release()} \n')
         em.add_field(name=f"Github Repository {Emote.github}", value=f'Main: https://github.com/OpenSource-Discordlist-for-Bots \nOffical DFB-OpenSource: https://github.com/OpenSource-Discordlist-for-Bots/DFB-Offical \nDevelopment Repo: https://github.com/Discordlist-for-Bots/dfbOfficalRewrite', inline=False)
     await ctx.send(embed=em)
 
+
+@bot.command(name='set-giveaway-prize')
+@commands.has_permissions(administrator=True)
+async def _gaprize(ctx, *, prize):
+
+    with open('./database/giveaway/giveawayPrize.cfg', 'w') as f:
+        f.write(prize)
+
+    await ctx.send(f"Prize was setted to {prize}")
+
+
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def giveaway(ctx):
+
+
+        p = open("./database/giveaway/giveawayPrize.cfg", "r")
+        t = open("./database/giveaway/giveawayTime.cfg", "r")
+        w = open("./database/giveaway/giveawayWinners.cfg", "r")
+
+
+        em = discord.Embed(
+            title="****Giveaway🎉****",
+            description="****Prize🎁****\n"
+                        f"• {p.read()} \n"
+                        "\n"
+                        "****Ends at📅****\n"
+                        f"• {t.read()}\n"
+                        "\n"
+                        "****Winners🥇****\n"
+                        f"• {w.read()}",
+            color=0xC84DFF
+        )
+
+        em.set_footer(text="React to 🎉")
+        message = await ctx.send(embed=em)
+        await message.add_reaction("🎉")
+
+
 # -- Utilities --
+
+@bot.command()
+async def isadmin(ctx):
+
+    string_admin = "undefined"
+
+    if ctx.message.author.guild_permissions.administrator:
+        string_admin = "Yes"
+
+    else:
+        string_admin = "No"
+
+    em = discord.Embed(
+        title="Is Admin?",
+        description=f"Value.string_admin = {string_admin}"
+    )
+
+    await ctx.send(embed=em)
+
+
+@bot.command()
+async def test(ctx):
+#    em = discord.Embed(
+#        title="Server Usage",
+#        description=f"**__Memory Usage__**\n"
+#                    f"{format(int(get_ram_usage() / 1024 / 1024))} MB\n\n"
+#                    f"**__CPU Usage__**\n"
+#                    f"{psutil.cpu_percent(4)} %",
+#        color=Colors.dfbColor
+#    )
+
+    message = await ctx.send("System Usage")
+    await asyncio.sleep(5)
+
+    while True:
+        await asyncio.sleep(5)
+        await message.edit(
+            content=f"**__Memory Usage__**\n"
+                        f"{format(int(get_ram_usage() / 1024 / 1024))} MB\n\n"
+                        f"**__CPU Usage__**\n"
+                        f"{psutil.cpu_percent(4)} %"
+        )
 
 
 bot.run(Config.Token)
