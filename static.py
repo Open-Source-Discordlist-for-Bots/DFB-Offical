@@ -9,7 +9,9 @@ def get_ram_usage():
     """
     return int(psutil.virtual_memory().total - psutil.virtual_memory().available)
 
+ok_words = ["ok", "Ok", "OK", "oK"]
 developer = [775017772358434817, 703944517048598568, 705557092802625576]
+
 
 class Emote:
     dfbEmote = "<:DFB:792539859419267142>"
@@ -26,7 +28,7 @@ class Emote:
 
 class Bot:
     Id = "847100391387824158"
-    Version = "1.56-pre-1a"
+    Version = "1.56-pre-9a"
     Repo = "https://github.com/Discordlist-for-Bots/dfbOfficalRewrite"
     Owner = "703944517048598568"
     OwnerMention = "<@703944517048598568>"

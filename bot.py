@@ -6,6 +6,7 @@ from datetime import timedelta
 import contextlib
 import io
 import asyncio
+import cpuinfo
 
 from static import *
 from config import *
@@ -15,7 +16,7 @@ from friendlier_json import Reader, Object
 
 # Main Bot begins here
 
-bot = commands.Bot(command_prefix = Config.Prefix, intents=discord.Intents.all())
+bot = commands.Bot(command_prefix=Config.Prefix, intents=discord.Intents.all())
 bot.remove_command('help')
 startTime = time.time()
 
@@ -34,7 +35,7 @@ async def on_ready():
     print('-- System Monitor --')
     print('**************************')
     print(f'CPU Usage: {psutil.cpu_percent()}%')
-    print(f'OS: {platform.platform()}')
+    print(f'OS: {platform.system()} {platform.release()}')
     print(f'Memory Usage: {psutil.virtual_memory()[2]}% | {format(int(get_ram_usage() / 1024 / 1024))} MB')
     print("**************************")
     print('-- Bot Log --')
@@ -75,6 +76,20 @@ async def on_member_update(after, before):
     if str(before.status) == "offline":
         if str(after.status) == "online":
             print(f'[BotOnOffline]: {before.name} is offline!')
+
+
+
+
+okWord = ['ok']
+
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+    for synonym in okWord:
+        if synonym in message.content.lower():
+            await message.channel.send('You have said the forbidden word Ok. Please restart your computer so that no damage occurs')
+
 
 # Events
 
@@ -352,6 +367,7 @@ async def about(ctx):
     async with ctx.typing():
         em = discord.Embed(title="About the offical DFB!", color=Colors.dfbColor)
         em.add_field(name=f"CPU Usage {Emote.cpu}", value=f"{psutil.cpu_percent(4)} %", inline=False)
+        em.add_field(name=f"CPU Info {Emote.cpu}", value=f"{cpuinfo.get_cpu_info()['brand_raw']}", inline=False)
         em.add_field(name=f"Memory Usage {Emote.ram}", value=f"{psutil.virtual_memory()[2]} % | {format(int(get_ram_usage() / 1024 / 1024))} MB", inline=True)
         em.add_field(name=f"Python Version {Emote.python}", value=f"{platform.python_version()}", inline=True)
         em.add_field(name=f"Python Compiler {Emote.pyCompiler}", value=f"{platform.python_compiler()}", inline=False)
@@ -445,6 +461,7 @@ async def test(ctx):
                         f"**__CPU Usage__**\n"
                         f"{psutil.cpu_percent(4)} %"
         )
+
 
 
 bot.run(Config.Token)
