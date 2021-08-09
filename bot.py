@@ -79,18 +79,6 @@ async def on_member_update(after, before):
 
 
 
-
-okWord = ['ok']
-
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
-    for synonym in okWord:
-        if synonym in message.content.lower():
-            await message.channel.send('You have said the forbidden word Ok. Please restart your computer so that no damage occurs')
-
-
 # Events
 
 # -- Help Command --
